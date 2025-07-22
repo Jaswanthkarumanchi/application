@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Advanced Calculator</title>
+<style>
+  body {
+    background: #1e1e2f;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: #eee;
+  }
+  .calculator {
+    background: #2d2d44;
+    border-radius: 15px;
+    padding: 20px;
+    width: 400px;
+    box-shadow: 0 0 25px #0f0;
+    user-select: none;
+  }
+  #display {
+    width: 100%;
+    height: 60px;
+    font-size: 28px;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    border: none;
+    background: #1a1a2e;
+    color: #0f0;
+    font-weight: bold;
+    text-align: right;
+  }
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+  }
+  button {
+    padding: 18px 0;
+    font-size: 18px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    background: #444466;
+    color: #eee;
+    transition: background 0.25s ease;
+  }
+  button:hover {
+    background: #0f0;
+    color: #111;
+  }
+  button.operator {
+    background: #208080;
+  }
+  button.function {
+    background: #f39c12;
+  }
+  button.memory {
+    background: #9b59b6;
+  }
+  button.equal {
+    background: #27ae60;
+    grid-column: span 2;
+  }
+  button.clear {
+    background: #e74c3c;
+    grid-column: span 2;
+  }
+  .mode-toggle {
+    grid-column: span 6;
+    margin-bottom: 12px;
+    text-align: center;
+    font-weight: bold;
+  }
+  .mode-toggle button {
+    width: 120px;
+    margin: 0 10px;
+    background: #666699;
+    color: #eee;
+  }
+  .mode-toggle button.active {
+    background: #0f0;
+    color: #111;
+  }
+</style>
+</head>
+<body>
+
+<div class="calculator">
+  <input type="text" id="display" readonly />
+  
+  <div class="mode-toggle">
+    Mode:
+    <button id="degBtn" class="active">Degrees</button>
+    <button id="radBtn">Radians</button>
+  </div>
+  
+  <div class="buttons">
+    <!-- Memory buttons -->
+    <button class="memory" onclick="memoryClear()">MC</button>
+    <button class="memory" onclick="memoryRecall()">MR</button>
+    <button class="memory" onclick="memoryAdd()">M+</button>
+    <button class="memory" onclick="memorySubtract()">M-</button>
+    <button class="function" onclick="clearDisplay()">C</button>
+    <button class="function" onclick="backspace()">←</button>
+    
+    <!-- Scientific functions -->
+    <button class="function" onclick="appendValue('(')">(</button>
+    <button class="function" onclick="appendValue(')')">)</button>
+    <button class="function" onclick="appendValue('sqrt(')">√</button>
+    <button class="function" onclick="appendValue('^')">^</button>
+    <button class="operator" onclick="appendValue('/')">÷</button>
+    <button class="operator" onclick="appendValue('*')">×</button>
+    
+    <button onclick="appendValue('7')">7</button>
+    <button onclick="appendValue('8')">8</button>
+    <button onclick="appendValue('9')">9</button>
+    <button class="operator" onclick="appendValue('-')">−</button>
+    <button class="function" onclick="appendValue('log(')">log</button>
+    <button class="function" onclick="appendValue('ln(')">ln</button>
+    
+    <button onclick="appendValue('4')">4</button>
+    <button onclick="appendValue('5')">5</button>
+    <button onclick="appendValue('6')">6</button>
+    <button class="operator" onclick="appendValue('+')">+</button>
+    <button class="function" onclick="appendValue('sin(')">sin</button>
+    <button class="function" onclick="appendValue('cos(')">cos</button>
+    
+    <button onclick="appendValue('1')">1</button>
+    <button onclick="appendValue('2')">2</button>
+    <button onclick="appendValue('3')">3</button>
+    <button class="equal" onclick="calculate()">=</button>
+    <button class="function" onclick="appendValue('tan(')">tan</button>
+    <button class="function" onclick="appendValue('exp(')">exp</button>
+    
+    <button onclick="appendValue('0')">0</button>
+    <button onclick="appendValue('.')">.</button>
+  </div>
+</div>
+
+<script>
+  const display = document.getElementById('display');
+  let memory = 0;
+  let angleMode = 'deg'; // 'deg' or 'rad'
+
+  document.getElementById('degBtn').addEventListener('click', () => setAngleMode('deg'));
+  document.getElementById('radBtn').addEventListener('click', () => setAngleMode('rad'));
+
+  function setAngleMode(mode) {
+    angleMode = mode;
+    document.getElementById('degBtn').classList.toggle('active', mode === 'deg');
+    document.getElementById('radBtn').classList.toggle('active', mode === 'rad');
+  }
+
+  function appendValue(val) {
+    display.value += val;
+  }
+
+  function clearDisplay() {
+    display.value = '';
+  }
+
+  function backspace() {
+    display.value = display.value.slice(0, -1);
+  }
+
+  function memoryClear() {
+    memory = 0;
+    alert('Memory cleared');
+  }
+
+  function memoryRecall() {
+    display.value += memory.toString();
+  }
+
+  function memoryAdd() {
+    try {
+      const val = evaluateExpression(display.value);
+      memory += val;
+      alert(`Added to memory: ${val}\nMemory: ${memory}`);
+    } catch {
+      alert('Invalid expression');
+    }
+  }
+
+  function memorySubtract() {
+    try {
+      const val = evaluateExpression(display.value);
+      memory -= val;
+      alert(`Subtracted from memory: ${val}\nMemory: ${memory}`);
+    } catch {
+      alert('Invalid expression');
+    }
+  }
+
+  function calculate() {
+    try {
+      const result = evaluateExpression(display.value);
+      display.value = result;
+    } catch (error) {
+      alert('Invalid expression');
+      display.value = '';
+    }
+  }
+
+  // Function to evaluate expressions with scientific functions and angle mode
+  function evaluateExpression(expr) {
+    if (!expr) throw 'Empty Expression';
+
+    // Replace operators to JS format
+    expr = expr.replace(/÷/g, '/').replace(/×/g, '*').replace(/\^/g, '**');
+
+    // Replace common functions with JS Math equivalents
+    const functions = {
+      sqrt: 'Math.sqrt',
+      log: 'Math.log10',
+      ln: 'Math.log',
+      exp: 'Math.exp',
+    };
+
+    for (const [func, jsFunc] of Object.entries(functions)) {
+      const regex = new RegExp(func + '\\(', 'g');
+      expr = expr.replace(regex, `${jsFunc}(`);
+    }
+
+    // Replace sin, cos, tan with angle mode conversion
+    expr = expr.replace(/(sin|cos|tan)\(/g, (match, fn) => {
+      if (angleMode === 'deg') {
+        return `Math.${fn}(Math.PI/180*`;
+      }
+      return `Math.${fn}(`;
+    });
+
+    // Disallow anything other than numbers, operators, parentheses, dots, and Math functions
+    if (!/^[0-9+\-*/()., MathPIexpqrtloglnsincostan^]*$/.test(expr)) {
+      throw 'Invalid characters detected';
+    }
+
+    // Evaluate expression
+    const result = Function('"use strict";return (' + expr + ')')();
+
+    if (!isFinite(result)) throw 'Math error';
+
+    // Round result for neatness
+    return Math.round((result + Number.EPSILON) * 1e12) / 1e12;
+  }
+</script>
+
+</body>
+</html>
